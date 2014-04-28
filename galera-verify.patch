@@ -1,0 +1,26 @@
+diff -up galera-25.3.5-src/galera/src/ist.cpp.verify galera-25.3.5-src/galera/src/ist.cpp
+--- galera-25.3.5-src/galera/src/ist.cpp.verify	2014-04-23 20:26:54.965034827 +0200
++++ galera-25.3.5-src/galera/src/ist.cpp	2014-04-23 20:27:35.397161536 +0200
+@@ -93,7 +93,8 @@ namespace
+     {
+         // Here we blindly assume that ssl globals have been initialized
+         // by gcomm.
+-        ctx.set_verify_mode(asio::ssl::context::verify_peer);
++        ctx.set_verify_mode(asio::ssl::context::verify_peer
++			    | asio::ssl::context::verify_fail_if_no_peer_cert);
+         SSLPasswordCallback cb(conf);
+         ctx.set_password_callback(
+             boost::bind(&SSLPasswordCallback::get_password, &cb));
+diff -up galera-25.3.5-src/gcomm/src/asio_protonet.cpp.verify galera-25.3.5-src/gcomm/src/asio_protonet.cpp
+--- galera-25.3.5-src/gcomm/src/asio_protonet.cpp.verify	2014-04-23 20:27:02.436058241 +0200
++++ galera-25.3.5-src/gcomm/src/asio_protonet.cpp	2014-04-23 20:28:15.762287927 +0200
+@@ -118,7 +118,8 @@ gcomm::AsioProtonet::AsioProtonet(gu::Co
+         log_info << "initializing ssl context";
+         set_compression(conf_);
+         set_cipher_list(ssl_context_.impl(), conf_);
+-        ssl_context_.set_verify_mode(asio::ssl::context::verify_peer);
++        ssl_context_.set_verify_mode(asio::ssl::context::verify_peer
++				     | asio::ssl::context::verify_fail_if_no_peer_cert);
+         ssl_context_.set_password_callback(
+             boost::bind(&gcomm::AsioProtonet::get_ssl_password, this));
+ 
