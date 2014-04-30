@@ -1,6 +1,6 @@
 Name:           galera
 Version:        25.3.5
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Synchronous multi-master wsrep provider (replication engine)
 
 License:        GPLv2
@@ -13,6 +13,9 @@ Patch1:         galera-verify.patch
 
 BuildRequires:  boost-devel check-devel openssl-devel scons systemd
 Requires:       nmap-ncat
+
+# comes from ./chromium/build_config.h
+ExclusiveArch:  %{ix86} x86_64 %{arm}
 
 
 Requires(post): systemd
@@ -84,6 +87,9 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %changelog
+* Wed Apr 30 2014 Dan Horák <dan[at]danny.cz> - 25.3.5-5
+- set ExclusiveArch
+
 * Thu Apr 24 2014 Ryan O'Hara <rohara@redhat.com> - 25.3.5-4
 - Use strict_build_flags=0 to avoid -Werror
 - Remove unnecessary %clean section
