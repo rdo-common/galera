@@ -1,6 +1,6 @@
 Name:           galera
 Version:        25.3.5
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Synchronous multi-master wsrep provider (replication engine)
 
 License:        GPLv2
@@ -87,6 +87,9 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %changelog
+* Fri May 23 2014 Petr Machata <pmachata@redhat.com> - 25.3.5-6
+- Rebuild for boost 1.55.0
+
 * Wed Apr 30 2014 Dan Horák <dan[at]danny.cz> - 25.3.5-5
 - set ExclusiveArch
 
