@@ -1,6 +1,6 @@
 Name:           galera
 Version:        25.3.5
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Synchronous multi-master wsrep provider (replication engine)
 
 License:        GPLv2
@@ -87,6 +87,9 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %changelog
+* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 25.3.5-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 25.3.5-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
