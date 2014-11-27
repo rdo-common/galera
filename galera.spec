@@ -1,6 +1,6 @@
 Name:           galera
 Version:        25.3.5
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Synchronous multi-master wsrep provider (replication engine)
 
 License:        GPLv2
@@ -10,12 +10,14 @@ Source1:        garbd.service
 Source2:        garbd-wrapper
 
 Patch1:         galera-verify.patch
+# Add aarch64 support.  Sent upstream 2014-11-27.
+Patch2:         galera-add-aarch64-support.patch
 
 BuildRequires:  boost-devel check-devel openssl-devel scons systemd
 Requires:       nmap-ncat
 
 # comes from ./chromium/build_config.h
-ExclusiveArch:  %{ix86} x86_64 %{arm}
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 
 Requires(post): systemd
@@ -34,6 +36,7 @@ replication engine see http://www.codership.com.
 %setup -q -n %{name}-%{version}-src
 
 %patch1 -p1
+%patch2 -p1
 
 
 %build
@@ -87,6 +90,9 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %changelog
+* Thu Nov 27 2014 Richard W.M. Jones <rjones@redhat.com> - 25.3.5-9
+- Add aarch64 support.
+
 * Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 25.3.5-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
