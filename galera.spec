@@ -1,23 +1,16 @@
 Name:           galera
-Version:        25.3.5
-Release:        9%{?dist}
+Version:        25.3.16
+Release:        1%{?dist}
 Summary:        Synchronous multi-master wsrep provider (replication engine)
 
 License:        GPLv2
-URL:            http://www.codership.com/
-Source0:        https://launchpad.net/%{name}/3.x/%{version}/+download/%{name}-%{version}-src.tar.gz
+URL:            http://galeracluster.com/
+Source0:        https://github.com/codership/%{name}/archive/release_%{version}.tar.gz
 Source1:        garbd.service
 Source2:        garbd-wrapper
 
-Patch1:         galera-verify.patch
-# Add aarch64 support.  Sent upstream 2014-11-27.
-Patch2:         galera-add-aarch64-support.patch
-
-BuildRequires:  boost-devel check-devel openssl-devel scons systemd
+BuildRequires:  boost-devel check-devel openssl-devel scons systemd asio-devel
 Requires:       nmap-ncat
-
-# comes from ./chromium/build_config.h
-ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 
 Requires(post): systemd
@@ -33,10 +26,7 @@ replication engine see http://www.codership.com.
 
 
 %prep
-%setup -q -n %{name}-%{version}-src
-
-%patch1 -p1
-%patch2 -p1
+%setup -q -n release_%{version}
 
 
 %build
@@ -90,6 +80,13 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %changelog
+* Tue May 23 2017 Mike Bayer <mbayer@redhat.com> - 25.3.16-1
+- Bump to 25.3.16
+- Fixes aarch64 and ppc64
+- sync w/ Fedora master
+- Use asio-devel instead of bundled asio library
+
+
 * Thu Nov 27 2014 Richard W.M. Jones <rjones@redhat.com> - 25.3.5-9
 - Add aarch64 support.
 
