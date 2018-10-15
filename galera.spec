@@ -1,23 +1,26 @@
 Name:           galera
-Version:        25.3.5
-Release:        9%{?dist}
+# Version:        25.%{galera_version}
+Version:        25.3.23
+Release:        5%{?dist}.0.0.rdo0
 Summary:        Synchronous multi-master wsrep provider (replication engine)
 
 License:        GPLv2
-URL:            http://www.codership.com/
-Source0:        https://launchpad.net/%{name}/3.x/%{version}/+download/%{name}-%{version}-src.tar.gz
+URL:            http://galeracluster.com/
+
+# Actually, the truth is, we do use galera source tarball provided by MariaDB on
+# following URL (without macros):
+#   https://mirror.vpsfree.cz/mariadb/mariadb-10.2.13/galera-25.3.23/src/galera-25.3.23.tar.gz
+# https://releases.galeracluster.com/galera-3.23/source/galera-3-25.3.23.tar.gz
+# Source0:        http://releases.galeracluster.com/source/%{name}-%{version}.tar.gz
+Source0:        https://mirror.vpsfree.cz/mariadb/mariadb-10.3.9/galera-%{version}/src/galera-%{version}.tar.gz
+
 Source1:        garbd.service
 Source2:        garbd-wrapper
 
-Patch1:         galera-verify.patch
-# Add aarch64 support.  Sent upstream 2014-11-27.
-Patch2:         galera-add-aarch64-support.patch
+Patch0:         galera-python3.patch
 
-BuildRequires:  boost-devel check-devel openssl-devel scons systemd
+BuildRequires:  boost-devel check-devel openssl-devel scons systemd gcc-c++ asio-devel
 Requires:       nmap-ncat
-
-# comes from ./chromium/build_config.h
-ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 
 Requires(post): systemd
@@ -33,14 +36,14 @@ replication engine see http://www.codership.com.
 
 
 %prep
-%setup -q -n %{name}-%{version}-src
-
-%patch1 -p1
-%patch2 -p1
-
+%setup -q
+%patch0 -p1
 
 %build
-export CPPFLAGS="%{optflags}"
+CPPFLAGS="%{optflags}"
+CPPFLAGS=`echo $CPPFLAGS| sed -e "s|-Wp,-D_GLIBCXX_ASSERTIONS||g" `
+export CPPFLAGS
+
 scons %{?_smp_mflags} strict_build_flags=0
 
 
@@ -62,10 +65,8 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 /sbin/ldconfig
 %systemd_post garbd.service
 
-
 %preun
 %systemd_preun garbd.service
-
 
 %postun
 /sbin/ldconfig
@@ -73,7 +74,6 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %files
-%defattr(-,root,root,-)
 %config(noreplace,missingok) %{_sysconfdir}/sysconfig/garb
 %dir %{_docdir}/galera
 %dir %{_libdir}/galera
@@ -90,6 +90,87 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 
 %changelog
+* Tue Oct  9 2018 Damien Ciabrini <dciabrin@redhat.com> - 25.3.23-5.0.0.rdo0
+- Rebase to f29 version, rebuild with python2 for RDO
+
+* Mon Jul 16 2018 Honza Horak <hhorak@redhat.com> - 25.3.23-5
+- Require asio also on rhel
+
+* Fri Jul 13 2018 Honza Horak <hhorak@redhat.com> - 25.3.23-4
+- Add explicit gcc-c++ BR
+- Use python3-scons
+
+* Fri Jul 13 2018 Honza Horak <hhorak@redhat.com> - 25.3.23-3
+- Do not require asio on rhel
+
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 25.3.23-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Fri Feb 16 2018 Michal Schorm <mschorm@redhat.com> - 25.3.23-1
+- Update to 25.3.23
+
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 25.3.22-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
+* Fri Nov 24 2017 Honza Horak <hhorak@redhat.com> - 25.3.22-1
+- Update to 25.3.22
+
+* Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 25.3.16-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 25.3.16-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Mon Jul 03 2017 Jonathan Wakely <jwakely@redhat.com> - 25.3.16-4
+- Rebuilt for Boost 1.64
+
+* Mon May 15 2017 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 25.3.16-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_27_Mass_Rebuild
+
+* Sat Feb 18 2017 Jonathan Wakely <jwakely@redhat.com> - 25.3.16-2
+- Use asio-devel instead of bundled asio library
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 25.3.16-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Wed Jun 22 2016 Mike Bayer <mbayer@redhat.com> - 25.3.16-1
+- Update to 25.3.16
+
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 25.3.12-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
+* Fri Jan 15 2016 Jonathan Wakely <jwakely@redhat.com> - 25.3.12-3
+- Rebuilt for Boost 1.60
+
+* Wed Sep 30 2015 Marcin Juszkiewicz <mjuszkiewicz@redhat.com> - 25.3.12-2
+- Remove use of -mtune=native which breaks build on secondary architectures
+
+* Fri Sep 25 2015 Richard W.M. Jones <rjones@redhat.com> - 25.3.12-1
+- Update to 25.3.12.
+- Should fix the build on 32 bit ARM (RHBZ#1241164).
+- Remove ExcludeArch (should have read the BZ more closely).
+
+* Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 25.3.10-5
+- Rebuilt for Boost 1.59
+
+* Wed Jul 29 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 25.3.10-4
+- Rebuilt for https://fedoraproject.org/wiki/Changes/F23Boost159
+
+* Wed Jul 22 2015 David Tardon <dtardon@redhat.com> - 25.3.10-3
+- rebuild for Boost 1.58
+
+* Wed Jul 08 2015 Ryan O'Hara <rohara@redhat.com> - 25.3.10-2
+- Disable ARM builds (#1241164, #1239516)
+
+* Mon Jul 06 2015 Ryan O'Hara <rohara@redhat.com> - 25.3.10-1
+- Update to version 25.3.10
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 25.3.5-11
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
+* Mon Jan 26 2015 Petr Machata <pmachata@redhat.com> - 25.3.5-10
+- Rebuild for boost 1.57.0
+
 * Thu Nov 27 2014 Richard W.M. Jones <rjones@redhat.com> - 25.3.5-9
 - Add aarch64 support.
 
@@ -107,7 +188,7 @@ install -D -m 644 scripts/packages/README-MySQL %{buildroot}%{_docdir}/galera/RE
 
 * Thu Apr 24 2014 Ryan O'Hara <rohara@redhat.com> - 25.3.5-4
 - Use strict_build_flags=0 to avoid -Werror
-- Remove unnecessary %clean section
+- Remove unnecessary clean section
 
 * Thu Apr 24 2014 Ryan O'Hara <rohara@redhat.com> - 25.3.5-3
 - Include galera directories in file list
